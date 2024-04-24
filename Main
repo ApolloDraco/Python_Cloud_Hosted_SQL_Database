@@ -1,0 +1,45 @@
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# Replace 'your_username', 'your_password', 'your_database_name', 'your_host' with your actual database credentials
+DATABASE_URL = 'mysql+mysqlconnector://your_username:your_password@your_host/your_database_name'
+
+# Create an engine that represents the database
+engine = create_engine(DATABASE_URL, echo=True)
+
+# Create a base class for declarative class definitions
+Base = declarative_base()
+
+# Define a class representing your table
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50))
+    age = Column(Integer)
+
+# Create the table in the database
+Base.metadata.create_all(engine)
+
+# Create a sessionmaker
+Session = sessionmaker(bind=engine)
+
+# Create a session
+session = Session()
+
+# Insert some data into the table
+session.add_all([
+    User(name='Alice', age=30),
+    User(name='Bob', age=25),
+    User(name='Charlie', age=35)
+])
+session.commit()
+
+# Query the data
+users = session.query(User).all()
+for user in users:
+    print(f'User: {user.name}, Age: {user.age}')
+
+# Close the session
+session.close()
